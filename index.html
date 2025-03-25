@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { max-width: 500px; margin: 20px; }
+        input { width: 100%; margin: 5px 0; text-transform: uppercase; }
+        .counter { color: #666; font-size: 0.8em; margin-left: 5px; }
+        .result { font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <label>TDD Slot <span id="tddCounter" class="counter">(0/10)</span>:</label>
+        <input id="tdd" maxlength="10">
+
+        <label>Special Slot #1 <span id="special1Counter" class="counter">(0/14)</span>:</label>
+        <input id="special1" maxlength="14" disabled>
+
+        <label>Special Slot #2 <span id="special2Counter" class="counter">(0/14)</span>:</label>
+        <input id="special2" maxlength="14" disabled>
+
+        <div>DL Slot Allocation: <span id="resultRSD" class="result">0</span></div>
+        <div>UL Slot Allocation: <span id="resultRSU" class="result">0</span></div>
+    </div>
+
+    <script>
+        const tddInput = document.getElementById('tdd');
+        const special1Input = document.getElementById('special1');
+        const special2Input = document.getElementById('special2');
+        const tddCounter = document.getElementById('tddCounter');
+        const special1Counter = document.getElementById('special1Counter');
+        const special2Counter = document.getElementById('special2Counter');
+        const resultRSD = document.getElementById('resultRSD');
+        const resultRSU = document.getElementById('resultRSU');
+
+        tddInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^DSU]/gi, '').toUpperCase();
+            updateTDD();
+        });
+        
+        special1Input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^DFU]/gi, '').toUpperCase();
+            calculate();
+        });
+        
+        special2Input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^DFU]/gi, '').toUpperCase();
+            calculate();
+        });
+
+        function updateTDD() {
+            const val = tddInput.value;
+            tddCounter.textContent = `(${val.length}/10)`;
+            const sCount = (val.match(/S/g) || []).length;
+            
+            special1Input.disabled = sCount < 1;
+            special2Input.disabled = sCount < 2;
+            
+            calculate();
+        }
+
+        function calculate() {
+            const tddVal = tddInput.value;
+            if (!tddVal) {
+                resultRSD.textContent = '0';
+                resultRSU.textContent = '0';
+                return;
+            }
+
+            let ssd1 = 0, ssu1 = 0, ssd2 = 0, ssu2 = 0;
+
+            if (!special1Input.disabled) {
+                const s1Val = special1Input.value;
+                ssd1 = (s1Val.match(/D/g) || []).length;
+                ssu1 = (s1Val.match(/U/g) || []).length;
+                special1Counter.textContent = `(${s1Val.length}/14)`;
+            }
+            if (!special2Input.disabled) {
+                const s2Val = special2Input.value;
+                ssd2 = (s2Val.match(/D/g) || []).length;
+                ssu2 = (s2Val.match(/U/g) || []).length;
+                special2Counter.textContent = `(${s2Val.length}/14)`;
+            }
+
+            const rssd = (ssd1/14) + (ssd2/14);
+            const rssu = (ssu1/14) + (ssu2/14);
+            const sd = (tddVal.match(/D/g) || []).length;
+            const su = (tddVal.match(/U/g) || []).length;
+            
+            const final_rsd = (sd + rssd) / tddVal.length;
+            const final_rsu = (su + rssu) / tddVal.length;
+            
+            resultRSD.textContent = final_rsd.toFixed(16);
+            resultRSU.textContent = final_rsu.toFixed(16);
+        }
+    </script>
+</body>
+</html>
