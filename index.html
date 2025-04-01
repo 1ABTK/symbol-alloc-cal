@@ -1,342 +1,63 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <style>
-            body {
-            font-size: 16px;
-            line-height: 1.6;
-            font-family: Arial, sans-serif;
-            }
-            .container { 
-            max-width: 600px; 
-            margin: 20px auto;
-            padding: 20px;
-            }
-            h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 25px;
-            }
-            .input-group { 
-            margin-bottom: 20px;
-            }
-            .input-row { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 10px;
-            }
-            select, input { 
-            width: 100%; 
-            padding: 10px;
-            box-sizing: border-box;
-            text-transform: uppercase;
-            font-size: 16px;
-            }
-            label { 
-            display: block; 
-            margin-bottom: 8px; 
-            font-weight: bold;
-            font-size: 18px;
-            }
-            .counter { 
-            color: #666; 
-            font-size: 0.9em; 
-            margin-left: 5px; 
-            }
-            .result { 
-            font-size: 1.3em; 
-            font-weight: bold;
-            color: #2c3e50;
-            }
-            .reference {
-            font-style: italic;
-            color: #7f8c8d;
-            margin: 15px 0;
-            text-align: center;
-            }
-            .formula {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 25px 0;
-            border-left: 4px solid #3498db;
-            }
-            .formula h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>TDD Slot Allocation Calculator</h1>
-            <div class="input-group">
-                <label>TDD Slot <span id="tddCounter" class="counter">(0/10)</span></label>
-                <div class="input-row">
-                    <select id="tddSelect">
-                        <option value="">Select format...</option>
-                        <option value="DDDSUUDSUU">SEMI-SYNC TDD1 (JP): DDDSUU DSUU</option>
-                        <option value="DDSUUUDSUU">SEMI-SYNC TDD2 (JP): DDSUUU DSUU</option>
-                        <option value="DSUUUUDSUU">SEMI-SYNC TDD3 (JP): DSUUUU DSUU</option>
-                        <option value="DDSUUUDDDD">SYNC TDD (JP): DDDSUU DDDD</option>
-                        <option value="DDDSU">DDDSU</option>
-                        <option value="DDDDDDDSUU">DDDDDDDSUU</option>
-                        <option value="DDDSUUDDDD">DDDSUU DDDD</option>
-                        <option value="DSUUU">DSUUU</option>
-                    </select>
-                    <input id="tdd" maxlength="10" placeholder="Or type manually">
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Special Slot #1 <span id="special1Counter" class="counter">(0/14)</span></label>
-                <div class="input-row">
-                    <select id="special1Select" disabled class="special-slot-select">
-                        <option value="">Select format...</option>
-                        <!-- Options will be added dynamically -->
-                    </select>
-                    <input id="special1" maxlength="14" disabled placeholder="Or type manually">
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Special Slot #2 <span id="special2Counter" class="counter">(0/14)</span></label>
-                <div class="input-row">
-                    <select id="special2Select" disabled class="special-slot-select">
-                        <option value="">Select format...</option>
-                        <!-- Options will be added dynamically -->
-                    </select>
-                    <input id="special2" maxlength="14" disabled placeholder="Or type manually">
-                </div>
-            </div>
-            <div class="reference">3GPP 38.213 Table 11.1.1-1</div>
-            <div class="result-group">
-                <div>DL Slot Allocation: <span id="resultRSD" class="result">0</span></div>
-                <div>UL Slot Allocation: <span id="resultRSU" class="result">0</span></div>
-            </div>
-            <div class="formula">
-                <h3>Calculation Formula</h3>
-                <p>final_rsd = (sd + (ssd₁/14) + (ssd₂/14)) / length(tdd_slot)</p>
-                <p>final_rsu = (su + (ssu₁/14) + (ssu₂/14)) / length(tdd_slot)</p>
-                <p>Where:</p>
-                <ul>
-                    <li>sd = count of 'D' in TDD slot</li>
-                    <li>su = count of 'U' in TDD slot</li>
-                    <li>ssd₁ = count of 'D' in Special Slot #1</li>
-                    <li>ssu₁ = count of 'U' in Special Slot #1</li>
-                    <li>ssd₂ = count of 'D' in Special Slot #2</li>
-                    <li>ssu₂ = count of 'U' in Special Slot #2</li>
-                </ul>
-            </div>
+  <head>
+    <title>TDD Slot Allocation Calculator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>TDD Slot Allocation Calculator</h1>
+      <div class="input-group">
+        <label>TDD Slot <span id="tddCounter" class="counter">(0/10)</span></label>
+        <div class="input-row">
+          <!-- Change this section: -->
+          <select id="tddSelect">
+            <option value="">Select format...</option>
+            <!-- Options will be added dynamically -->
+          </select>
+          <input id="tdd" maxlength="10" placeholder="Or type manually" />
         </div>
-        <script>
-            // Shared options for special slots
-                   const specialSlotOptions = [
-              {value: "UUUUUUUUUUUUUU", text: "Format:1: UUUUUUUUUUUUUU"},
-              {value: "FFFFFFFFFFFFFF", text: "Format:2: FFFFFFFFFFFFFF"},
-              {value: "DDDDDDDDDDDDDF", text: "Format:3: DDDDDDDDDDDDDF"},
-              {value: "DDDDDDDDDDDDFF", text: "Format:4: DDDDDDDDDDDDFF"},
-              {value: "DDDDDDDDDDDFFF", text: "Format:5: DDDDDDDDDDDFFF"},
-              {value: "DDDDDDDDDDFFFF", text: "Format:6: DDDDDDDDDDFFFF"},
-              {value: "DDDDDDDDDFFFFF", text: "Format:7: DDDDDDDDDFFFFF"},
-              {value: "FFFFFFFFFFFFFU", text: "Format:8: FFFFFFFFFFFFFU"},
-              {value: "FFFFFFFFFFFFUU", text: "Format:9: FFFFFFFFFFFFUU"},
-              {value: "FUUUUUUUUUUUUU", text: "Format:10: FUUUUUUUUUUUUU"},
-              {value: "FFUUUUUUUUUUUU", text: "Format:11: FFUUUUUUUUUUUU"},
-              {value: "FFFUUUUUUUUUUU", text: "Format:12: FFFUUUUUUUUUUU"},
-              {value: "FFFFUUUUUUUUUU", text: "Format:13: FFFFUUUUUUUUUU"},
-              {value: "FFFFFUUUUUUUUU", text: "Format:14: FFFFFUUUUUUUUU"},
-              {value: "FFFFFFUUUUUUUU", text: "Format:15: FFFFFFUUUUUUUU"},
-              {value: "DFFFFFFFFFFFFF", text: "Format:16: DFFFFFFFFFFFFF"},
-              {value: "DDFFFFFFFFFFFF", text: "Format:17: DDFFFFFFFFFFFF"},
-              {value: "DDDFFFFFFFFFFF", text: "Format:18: DDDFFFFFFFFFFF"},
-              {value: "DFFFFFFFFFFFFU", text: "Format:19: DFFFFFFFFFFFFU"},
-              {value: "DDFFFFFFFFFFFU", text: "Format:20: DDFFFFFFFFFFFU"},
-              {value: "DDDFFFFFFFFFFU", text: "Format:21: DDDFFFFFFFFFFU"},
-              {value: "DFFFFFFFFFFFUU", text: "Format:22: DFFFFFFFFFFFUU"},
-              {value: "DDFFFFFFFFFFUU", text: "Format:23: DDFFFFFFFFFFUU"},
-              {value: "DDDFFFFFFFFFUU", text: "Format:24: DDDFFFFFFFFFUU"},
-              {value: "DFFFFFFFFFFUUU", text: "Format:25: DFFFFFFFFFFUUU"},
-              {value: "DDFFFFFFFFFUUU", text: "Format:26: DDFFFFFFFFFUUU"},
-              {value: "DDDFFFFFFFFUUU", text: "Format:27: DDDFFFFFFFFUUU"},
-              {value: "DDDDDDDDDDDDFU", text: "Format:28: DDDDDDDDDDDDFU"},
-              {value: "DDDDDDDDDDDFFU", text: "Format:29: DDDDDDDDDDDFFU"},
-              {value: "DDDDDDDDDDFFFU", text: "Format:30: DDDDDDDDDDFFFU"},
-              {value: "DDDDDDDDDDDFUU", text: "Format:31: DDDDDDDDDDDFUU"},
-              {value: "DDDDDDDDDDFFUU", text: "Format:32: DDDDDDDDDDFFUU"},
-              {value: "DDDDDDDDDFFFUU", text: "Format:33: DDDDDDDDDFFFUU"},
-              {value: "DFUUUUUUUUUUUU", text: "Format:34: DFUUUUUUUUUUUU"},
-              {value: "DDFUUUUUUUUUUU", text: "Format:35: DDFUUUUUUUUUUU"},
-              {value: "DDDFUUUUUUUUUU", text: "Format:36: DDDFUUUUUUUUUU"},
-              {value: "DFFUUUUUUUUUUU", text: "Format:37: DFFUUUUUUUUUUU"},
-              {value: "DDFFUUUUUUUUUU", text: "Format:38: DDFFUUUUUUUUUU"},
-              {value: "DDDFFUUUUUUUUU", text: "Format:39: DDDFFUUUUUUUUU"},
-              {value: "DFFFUUUUUUUUUU", text: "Format:40: DFFFUUUUUUUUUU"},
-              {value: "DDFFFUUUUUUUUU", text: "Format:41: DDFFFUUUUUUUUU"},
-              {value: "DDDFFFUUUUUUUU", text: "Format:42: DDDFFFUUUUUUUU"},
-              {value: "DDDDDDDDDFFFFU", text: "Format:43: DDDDDDDDDFFFFU"},
-              {value: "DDDDDDFFFFFFUU", text: "Format:44: DDDDDDFFFFFFUU"},
-              {value: "DDDDDDFFUUUUUU", text: "Format:45: DDDDDDFFUUUUUU"},
-              {value: "DDDDDFUDDDDDFU", text: "Format:46: DDDDDFUDDDDDFU"},
-              {value: "DDFUUUUDDFUUUU", text: "Format:47: DDFUUUUDDFUUUU"},
-              {value: "DFUUUUUDFUUUUU", text: "Format:48: DFUUUUUDFUUUUU"},
-              {value: "DDDDFFUDDDDFFU", text: "Format:49: DDDDFFUDDDDFFU"},
-              {value: "DDFFUUUDDFFUUU", text: "Format:50: DDFFUUUDDFFUUU"},
-              {value: "DFFUUUUDFFUUUU", text: "Format:51: DFFUUUUDFFUUUU"},
-              {value: "DFFFFFUDFFFFFU", text: "Format:52: DFFFFFUDFFFFFU"},
-              {value: "DDFFFFUDDFFFFU", text: "Format:53: DDFFFFUDDFFFFU"},
-              {value: "FFFFFFFDDDDDDD", text: "Format:54: FFFFFFFDDDDDDD"},
-              {value: "DDFFFUUUDDDDDD", text: "Format:55: DDFFFUUUDDDDDD"}
-                   ];
-            
-                   // Initialize special slot dropdowns
-                   function initSpecialSlotSelects() {
-                       const selects = document.querySelectorAll('.special-slot-select');
-                       selects.forEach(select => {
-                           // Clear existing options except the first one
-                           while (select.options.length > 1) {
-                               select.remove(1);
-                           }
-                           
-                           // Add shared options
-                           specialSlotOptions.forEach(option => {
-                               const optElement = document.createElement('option');
-                               optElement.value = option.value;
-                               optElement.textContent = option.text;
-                               select.appendChild(optElement);
-                           });
-                       });
-                   }
-            	
-            	        // Initialize when DOM is loaded
-                   document.addEventListener('DOMContentLoaded', function() {
-                       initSpecialSlotSelects();
-                       
-                       // Rest of your existing JavaScript code
-                       const tddInput = document.getElementById('tdd');
-                       const tddSelect = document.getElementById('tddSelect');
-                       const special1Input = document.getElementById('special1');
-                       const special2Input = document.getElementById('special2');
-                       const special1Select = document.getElementById('special1Select');
-                       const special2Select = document.getElementById('special2Select');
-                       const tddCounter = document.getElementById('tddCounter');
-                       const special1Counter = document.getElementById('special1Counter');
-                       const special2Counter = document.getElementById('special2Counter');
-                       const resultRSD = document.getElementById('resultRSD');
-                       const resultRSU = document.getElementById('resultRSU');
-            
-                       // ... rest of your existing event listeners and functions ...
-            		
-            		
-                   // TDD Slot handlers
-                   tddInput.addEventListener('input', function(e) {
-                       this.value = this.value.replace(/[^DSU]/gi, '').toUpperCase();
-                       tddSelect.value = '';
-                       updateCounter(this, tddCounter);
-                       updateTDD();
-                   });
-                   
-                   tddSelect.addEventListener('change', function(e) {
-                       if (this.value) {
-                           tddInput.value = this.value;
-                           updateCounter(tddInput, tddCounter);
-                           updateTDD();
-                       }
-                   });
-            
-                   // Special Slot 1 handlers
-                   special1Input.addEventListener('input', function(e) {
-                       this.value = this.value.replace(/[^DFU]/gi, '').toUpperCase();
-                       special1Select.value = '';
-                       updateCounter(this, special1Counter);
-                       calculate();
-                   });
-                   
-                   special1Select.addEventListener('change', function(e) {
-                       if (this.value) {
-                           special1Input.value = this.value;
-                           updateCounter(special1Input, special1Counter);
-                           calculate();
-                       }
-                   });
-            
-                   // Special Slot 2 handlers
-                   special2Input.addEventListener('input', function(e) {
-                       this.value = this.value.replace(/[^DFU]/gi, '').toUpperCase();
-                       special2Select.value = '';
-                       updateCounter(this, special2Counter);
-                       calculate();
-                   });
-                   
-                   special2Select.addEventListener('change', function(e) {
-                       if (this.value) {
-                           special2Input.value = this.value;
-                           updateCounter(special2Input, special2Counter);
-                           calculate();
-                       }
-                   });
-            
-                   function updateCounter(input, counter) {
-                       counter.textContent = `(${input.value.length}/${input.maxLength})`;
-                   }
-            
-                   function updateTDD() {
-                       const val = tddInput.value;
-                       updateCounter(tddInput, tddCounter);
-                       const sCount = (val.match(/S/g) || []).length;
-                       
-                       special1Input.disabled = special1Select.disabled = sCount < 1;
-                       special2Input.disabled = special2Select.disabled = sCount < 2;
-                       
-                       if (sCount < 1) {
-                           special1Input.value = '';
-                           special1Select.value = '';
-                           updateCounter(special1Input, special1Counter);
-                       }
-                       if (sCount < 2) {
-                           special2Input.value = '';
-                           special2Select.value = '';
-                           updateCounter(special2Input, special2Counter);
-                       }
-                       
-                       calculate();
-                   }
-            
-                   function calculate() {
-                       const tddVal = tddInput.value;
-                       if (!tddVal) {
-                           resultRSD.textContent = '0';
-                           resultRSU.textContent = '0';
-                           return;
-                       }
-            
-                       let ssd1 = 0, ssu1 = 0, ssd2 = 0, ssu2 = 0;
-            
-                       if (!special1Input.disabled) {
-                           const s1Val = special1Input.value;
-                           ssd1 = (s1Val.match(/D/g) || []).length;
-                           ssu1 = (s1Val.match(/U/g) || []).length;
-                           updateCounter(special1Input, special1Counter);
-                       }
-                       if (!special2Input.disabled) {
-                           const s2Val = special2Input.value;
-                           ssd2 = (s2Val.match(/D/g) || []).length;
-                           ssu2 = (s2Val.match(/U/g) || []).length;
-                           updateCounter(special2Input, special2Counter);
-                       }
-            
-                       const rssd = (ssd1/14) + (ssd2/14);
-                       const rssu = (ssu1/14) + (ssu2/14);
-                       const sd = (tddVal.match(/D/g) || []).length;
-                       const su = (tddVal.match(/U/g) || []).length;
-                       
-                       const final_rsd = (sd + rssd) / tddVal.length;
-                       const final_rsu = (su + rssu) / tddVal.length;
-                       
-                       resultRSD.textContent = final_rsd.toFixed(16);
-                       resultRSU.textContent = final_rsu.toFixed(16);
-                   }
-                   });
-            
-               
-        </script>
-    </body>
+      </div>
+      <div class="input-group">
+        <label>Special Slot #1 <span id="special1Counter" class="counter">(0/14)</span></label>
+        <div class="input-row">
+          <select id="special1Select" disabled class="special-slot-select">
+            <option value="">Select format...</option>
+            <!-- Options will be added dynamically -->
+          </select>
+          <input id="special1" maxlength="14" disabled placeholder="Or type manually" />
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Special Slot #2 <span id="special2Counter" class="counter">(0/14)</span></label>
+        <div class="input-row">
+          <select id="special2Select" disabled class="special-slot-select">
+            <option value="">Select format...</option>
+            <!-- Options will be added dynamically -->
+          </select>
+          <input id="special2" maxlength="14" disabled placeholder="Or type manually" />
+        </div>
+      </div>
+      <div class="reference">3GPP 38.213 Table 11.1.1-1</div>
+      <div class="result-group">
+        <div>DL Slot Allocation: <span id="resultRSD" class="result">0</span></div>
+        <div>UL Slot Allocation: <span id="resultRSU" class="result">0</span></div>
+      </div>
+      <div class="formula">
+        <h3>Calculation Formula</h3>
+        <p>final_rsd = (sd + (ssd₁/14) + (ssd₂/14)) / length(tdd_slot)</p>
+        <p>final_rsu = (su + (ssu₁/14) + (ssu₂/14)) / length(tdd_slot)</p>
+        <p>Where:</p>
+        <ul>
+          <li>sd = count of 'D' in TDD slot</li>
+          <li>su = count of 'U' in TDD slot</li>
+          <li>ssd₁ = count of 'D' in Special Slot #1</li>
+          <li>ssu₁ = count of 'U' in Special Slot #1</li>
+          <li>ssd₂ = count of 'D' in Special Slot #2</li>
+          <li>ssu₂ = count of 'U' in Special Slot #2</li>
+        </ul>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
 </html>
